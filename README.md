@@ -41,16 +41,21 @@ claude plugin install type-inject
 
 ## type-inject
 
-封装 [nick-vi/type-inject](https://github.com/nick-vi/type-inject)，免去手动配置 MCP 和 hooks。
+封装 [nick-vi/type-inject](https://github.com/nick-vi/type-inject)，免去手动配置 MCP。
+
+### 安装后配置
+
+插件安装后需运行 `/type-inject:setup` 将 hooks 写入 settings.json（插件系统暂不支持 PostToolUse + matcher 的 hooks 自动注册）。
 
 ### 功能
 
 - 读取 `.ts`/`.svelte` 文件时自动注入解析后的类型签名
 - 写入/编辑后立即报告类型错误
 - 提供 `lookup_type`、`list_types`、`type_check` MCP 工具
-- 提供 `/type-check` 技能
+- 提供 `/type-inject:type-check` 技能
+- 提供 `/type-inject:setup` 命令（一次性配置 hooks）
 
-### Hooks
+### Hooks（需通过 setup 命令安装）
 
 | 事件        | Matcher | 说明           |
 | ----------- | ------- | -------------- |
@@ -73,7 +78,8 @@ agent-tools/
 │   └── type-inject/         # 独立插件
 │       ├── .claude-plugin/
 │       │   └── plugin.json
-│       └── skills/
+│       ├── skills/
+│       └── commands/
 └── package.json
 ```
 

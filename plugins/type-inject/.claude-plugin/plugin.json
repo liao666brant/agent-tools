@@ -1,6 +1,6 @@
 {
   "name": "type-inject",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "TypeScript 类型自动注入 - 读写文件时注入类型签名，提供类型查询和检查工具",
   "author": {
     "name": "nick-vi",
@@ -16,42 +16,8 @@
       "args": ["-y", "@nick-vi/type-inject-mcp"]
     }
   },
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Read",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx -y @nick-vi/claude-type-inject-hook",
-            "timeout": 10,
-            "statusMessage": "Injecting TypeScript types..."
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx -y @nick-vi/claude-type-inject-hook",
-            "timeout": 10,
-            "statusMessage": "Checking TypeScript types..."
-          }
-        ]
-      },
-      {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx -y @nick-vi/claude-type-inject-hook",
-            "timeout": 10,
-            "statusMessage": "Checking TypeScript types..."
-          }
-        ]
-      }
-    ]
-  },
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "commands": [
+    "./commands/setup.md"
+  ]
 }
