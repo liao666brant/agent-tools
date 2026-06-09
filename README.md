@@ -17,10 +17,10 @@ claude plugin install type-inject
 
 ## 插件列表
 
-| 插件        | 说明                                     |
-| ----------- | ---------------------------------------- |
-| agent-tools | 个人技能集合（git-commit、title-rename） |
-| type-inject | TypeScript 类型自动注入                  |
+| 插件        | 说明                                                   |
+| ----------- | ------------------------------------------------------ |
+| agent-tools | 个人技能集合（git-commit、title-rename、init-project） |
+| type-inject | TypeScript 类型自动注入                                |
 
 ## agent-tools
 
@@ -31,7 +31,10 @@ claude plugin install type-inject
 | 技能         | 说明                                                          |
 | ------------ | ------------------------------------------------------------- |
 | git-commit   | 智能 Git 提交：conventional commits、自动语言检测、可指定语言 |
+| init-project | 初始化项目 AI 上下文，生成 Codex/OpenCode 可用的 AGENTS.md、Claude 兼容 CLAUDE.md 和模块索引 |
 | title-rename | 根据对话内容智能重命名会话标题                                |
+
+`init-project` 是纯 skill，自包含扫描、生成和验收流程，不依赖插件级 agents 或 commands。
 
 ### Hooks
 
@@ -72,6 +75,7 @@ agent-tools/
 │   └── marketplace.json     # 插件市场注册表
 ├── skills/                  # agent-tools 技能
 │   ├── git-commit/
+│   ├── init-project/
 │   └── title-rename/
 ├── hooks/                   # agent-tools hooks
 ├── plugins/

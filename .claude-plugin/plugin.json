@@ -1,7 +1,7 @@
 {
   "name": "agent-tools",
   "version": "0.7.0",
-  "description": "个人 Claude Code 技能集合",
+  "description": "个人 Claude Code 技能集合，包含 Git 提交、标题重命名、Codex/OpenCode/Claude 项目 AI 上下文初始化",
   "author": {
     "name": "liao666brant",
     "url": "https://github.com/liao666brant"

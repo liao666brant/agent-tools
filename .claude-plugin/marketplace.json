@@ -9,7 +9,7 @@
     {
       "name": "agent-tools",
       "source": "./",
-      "description": "个人 Claude Code 技能集合 - 包含 title-rename、git-commit 等实用技能",
+      "description": "个人 Claude Code 技能集合 - 包含 title-rename、git-commit、init-project 等实用技能，支持生成 Codex/OpenCode/Claude 项目上下文",
       "author": {
         "name": "liao666brant"
       },
