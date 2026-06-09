@@ -15,6 +15,16 @@ claude plugin install agent-tools
 claude plugin install type-inject
 ```
 
+### 仅安装 skills
+
+不想安装 Claude 插件时，可以用 `skills` CLI 直接安装纯 skill。它会按 agent 写入对应的用户级 skills 目录，适合同时给 Claude Code、Codex、OpenCode 使用。
+
+```bash
+# 安装 skills
+npx skills add liao666brant/agent-tools -g
+
+```
+
 ## 插件列表
 
 | 插件        | 说明                                                   |
@@ -28,11 +38,11 @@ claude plugin install type-inject
 
 ### 技能
 
-| 技能         | 说明                                                          |
-| ------------ | ------------------------------------------------------------- |
-| git-commit   | 智能 Git 提交：conventional commits、自动语言检测、可指定语言 |
+| 技能         | 说明                                                                                         |
+| ------------ | -------------------------------------------------------------------------------------------- |
+| git-commit   | 智能 Git 提交：conventional commits、自动语言检测、可指定语言                                |
 | init-project | 初始化项目 AI 上下文，生成 Codex/OpenCode 可用的 AGENTS.md、Claude 兼容 CLAUDE.md 和模块索引 |
-| title-rename | 根据对话内容智能重命名会话标题                                |
+| title-rename | 根据对话内容智能重命名会话标题                                                               |
 
 `init-project` 是纯 skill，自包含扫描、生成和验收流程，不依赖插件级 agents 或 commands。
 
