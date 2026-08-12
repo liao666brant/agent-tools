@@ -1,4 +1,4 @@
-# agent-tools
+# skills
 
 个人 Agent Skills 仓库，符合 [skills.sh](https://skills.sh) 规范。
 
@@ -14,7 +14,7 @@
 ## 安装
 
 ```bash
-npx skills add liao666brant/agent-tools -g
+npx skills add liao666brant/skills -g
 ```
 
 `skills` CLI 会自动发现仓库 `skills/` 下的所有技能，并按当前 agent 写入对应的用户级 skills 目录（Claude Code、Codex、OpenCode 等），一套技能多端通用。
@@ -22,7 +22,7 @@ npx skills add liao666brant/agent-tools -g
 ## 目录结构
 
 ```
-agent-tools/
+skills/
 ├── skills.sh.json          # skills.sh 展示分组配置
 └── skills/                 # 技能目录
     ├── git-commit/
