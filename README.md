@@ -6,10 +6,11 @@
 
 ## 技能列表
 
-| 技能       | 说明                                                              |
-| ---------- | ----------------------------------------------------------------- |
-| git-commit | 智能 Git 提交：conventional commits、自动语言检测、可指定语言     |
-| commit-zh  | 中文 Git 提交：分析变更并生成中文 conventional commit message     |
+| 技能          | 说明                                                              |
+| ------------- | ----------------------------------------------------------------- |
+| git-commit    | 智能 Git 提交：conventional commits、自动语言检测、可指定语言     |
+| commit-zh     | 中文 Git 提交：分析变更并生成中文 conventional commit message     |
+| image-analyzer | 为当前主模型提供图像理解能力，非多模态模型自动委派 sonnet 读图   |
 
 ## 安装
 
@@ -27,7 +28,9 @@ skills/
 └── skills/                 # 技能目录
     ├── git-commit/
     │   └── SKILL.md
-    └── commit-zh/
+    ├── commit-zh/
+    │   └── SKILL.md
+    └── image-analyzer/
         └── SKILL.md
 ```
 

@@ -5,6 +5,11 @@
       "title": "Git",
       "description": "Git 提交相关技能",
       "skills": ["git-commit", "commit-zh"]
+    },
+    {
+      "title": "多模态",
+      "description": "图像理解相关技能",
+      "skills": ["image-analyzer"]
     }
   ]
 }
