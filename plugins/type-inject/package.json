@@ -1,9 +1,0 @@
-{
-  "name": "type-inject",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "@nick-vi/type-inject-mcp": "latest",
-    "@nick-vi/claude-type-inject-hook": "latest"
-  }
-}

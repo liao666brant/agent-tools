@@ -1,0 +1,10 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "groupings": [
+    {
+      "title": "Git",
+      "description": "Git 提交相关技能",
+      "skills": ["git-commit", "commit-zh"]
+    }
+  ]
+}
