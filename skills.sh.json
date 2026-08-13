@@ -10,6 +10,11 @@
       "title": "多模态",
       "description": "图像理解相关技能",
       "skills": ["image-analyzer"]
+    },
+    {
+      "title": "项目上下文",
+      "description": "项目 AI 上下文索引与文档相关技能",
+      "skills": ["index-project"]
     }
   ]
 }

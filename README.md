@@ -11,6 +11,7 @@
 | git-commit    | 智能 Git 提交：conventional commits、自动语言检测、可指定语言     |
 | commit-zh     | 中文 Git 提交：分析变更并生成中文 conventional commit message     |
 | image-analyzer | 为当前主模型提供图像理解能力，非多模态模型自动委派 sonnet 读图   |
+| index-project  | 项目 AI 上下文索引：以 AGENTS.md 为唯一事实来源，初始化/增量维护并收敛 CLAUDE.md |
 
 ## 安装
 
@@ -30,8 +31,11 @@ skills/
     │   └── SKILL.md
     ├── commit-zh/
     │   └── SKILL.md
-    └── image-analyzer/
-        └── SKILL.md
+    ├── image-analyzer/
+    │   └── SKILL.md
+    └── index-project/
+        ├── SKILL.md
+        └── references/          # first-index.md / incremental-index.md
 ```
 
 ## 添加新技能
