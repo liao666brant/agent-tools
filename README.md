@@ -12,6 +12,7 @@
 | commit-zh     | 中文 Git 提交：分析变更并生成中文 conventional commit message     |
 | image-analyzer | 为当前主模型提供图像理解能力，非多模态模型自动委派 sonnet 读图   |
 | code-review | 默认审查未提交改动，也可双轴审查指定基线后的仓库规范与需求实现   |
+| review-fix-goal | 自包含的跨宿主审查修复闭环，最终复审清零后中文提交并推送       |
 | index-project  | 项目 AI 上下文索引：以 AGENTS.md 为唯一事实来源，初始化/增量维护并收敛 CLAUDE.md |
 | wsl-windows-image | WSL 中读取 Windows 图片：自动转换 /mnt/<盘符>/ 路径并读图            |
 
@@ -39,6 +40,11 @@ skills/
     │   ├── SKILL.md
     │   └── agents/
     │       └── openai.yaml
+    ├── review-fix-goal/
+    │   ├── SKILL.md
+    │   ├── agents/
+    │   │   └── openai.yaml
+    │   └── references/          # review.md / commit.md
     ├── index-project/
     │   ├── SKILL.md
     │   └── references/          # first-index.md / incremental-index.md
