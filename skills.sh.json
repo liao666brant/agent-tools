@@ -19,7 +19,7 @@
     {
       "title": "项目上下文",
       "description": "项目 AI 上下文索引与文档相关技能",
-      "skills": ["index-project"]
+      "skills": ["index-project", "ux-writing"]
     },
     {
       "title": "WSL",

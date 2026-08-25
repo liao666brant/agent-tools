@@ -14,7 +14,12 @@
 | code-review | 默认审查未提交改动，也可双轴审查指定基线后的仓库规范与需求实现   |
 | review-fix-goal | 自包含的跨宿主审查修复闭环，最终复审清零后中文提交并推送       |
 | index-project  | 项目 AI 上下文索引：以 AGENTS.md 为唯一事实来源，初始化/增量维护并收敛 CLAUDE.md |
+| ux-writing | 用户可见文案与文档的清晰度、一致性与时效性检查 |
 | wsl-windows-image | WSL 中读取 Windows 图片：自动转换 /mnt/<盘符>/ 路径并读图            |
+
+## 来源与许可
+
+- `ux-writing`：改编自 [scarletkc/agents 的 ux-writing](https://github.com/scarletkc/agents/tree/main/skills/ux-writing)，原作者 [scarletkc](https://github.com/scarletkc)，遵循 Apache-2.0 许可。
 
 ## 安装
 
@@ -48,6 +53,8 @@ skills/
     ├── index-project/
     │   ├── SKILL.md
     │   └── references/          # first-index.md / incremental-index.md
+    ├── ux-writing/
+    │   └── SKILL.md
     └── wsl-windows-image/
         └── SKILL.md
 ```
