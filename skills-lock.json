@@ -18,6 +18,12 @@
       "sourceType": "github",
       "skillPath": "skills/update-skill/SKILL.md",
       "computedHash": "5520ae6f5d7f6ba79e1223ac485f6edbdda3de52d5e538d99584eb45c73bf997"
+    },
+    "writing-for-agents": {
+      "source": "liao666brant/skills",
+      "sourceType": "github",
+      "skillPath": "skills/writing-for-agents/SKILL.md",
+      "computedHash": "6d36eba84fc842cda883d7e3aae10889086c7b20ee7105f829c8cc18e121f1f2"
     }
   }
 }
