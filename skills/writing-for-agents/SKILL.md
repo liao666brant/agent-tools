@@ -1,6 +1,6 @@
 ---
 name: writing-for-agents
-description: "设计和精炼供 Agent 使用的指令文档，重点控制上下文指针、渐进披露、完成条件和认知负载。适用于审查或改写 Skill、AGENTS.md、CLAUDE.md 的表达与组织；不用于 Skill 安装、脚本开发或普通用户文案。"
+description: "编写供 Agent 使用的文档。适用于创建或编辑 Skill，或修改 AGENTS.md、CLAUDE.md。"
 ---
 
 # Agent 文档写作
