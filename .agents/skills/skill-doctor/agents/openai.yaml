@@ -1,0 +1,3 @@
+interface:
+  display_name: "技能医生"
+  short_description: "基于本地真实 Agent 会话评估技能效果并生成改进报告"
