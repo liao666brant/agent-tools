@@ -18,6 +18,7 @@
 | unslop | 清除文本中的 AI 腔、套话和机械结构，保留自然语气与作者个性 |
 | show-me | 用精简图示、代码结构草图和 HTML 解释复杂主题 |
 | index-project  | 项目 AI 上下文索引：以 AGENTS.md 为唯一事实来源，初始化/增量维护并收敛 CLAUDE.md |
+| writing-for-agents | 为 Agent 编写低上下文负担、触发清晰且过程稳定的指令文档 |
 | ux-writing | 用户可见文案与文档的清晰度、一致性与时效性检查 |
 | scoped-change | 界定变更边界，避免超范围改动与遗漏必要位置 |
 | wsl-windows-image | WSL 中读取 Windows 图片：自动转换 /mnt/<盘符>/ 路径并读图            |
@@ -30,6 +31,7 @@
 - `update-skill`：中文化并适配自 [warpdotdev/common-skills 的 update-skill](https://github.com/warpdotdev/common-skills/tree/main/.agents/skills/update-skill)，原作者 Denver Technologies, Inc.，遵循 MIT 许可。
 - `unslop`：中文化并适配自 [Cursor plugins 的 pstack/unslop](https://github.com/cursor/plugins/tree/main/pstack/skills/unslop)，原作者 Lauren Tan，遵循 MIT 许可。
 - `show-me`：中文化并适配自 [HumanLayer skills 的 show-me](https://github.com/humanlayer/skills/tree/main/plugins/show-me/skills/show-me)，原作者 HumanLayer，遵循 MIT 许可。
+- `writing-for-agents`：中文化并适配自 [mattpocock/skills 的 writing-for-agents](https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-for-agents)，原作者 Matt Pocock，遵循 MIT 许可。
 
 ## 安装
 
@@ -85,6 +87,12 @@ skills/
     ├── index-project/
     │   ├── SKILL.md
     │   └── references/          # first-index.md / incremental-index.md
+    ├── writing-for-agents/
+    │   ├── SKILL.md
+    │   ├── agents/
+    │   │   └── openai.yaml
+    │   └── references/
+    │       └── skill-mechanics.md
     ├── ux-writing/
     │   └── SKILL.md
     ├── scoped-change/

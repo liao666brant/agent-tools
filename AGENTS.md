@@ -58,6 +58,7 @@ flowchart TD
 | 工程质量 | `review-fix-goal` | 显式触发后循环审查、修复、验证，并经确认提交/推送 | [SKILL.md](skills/review-fix-goal/SKILL.md)、`references/commit.md`、`references/review.md` |
 | 工程质量 | `scoped-change` | 界定请求的正确变更边界，避免遗漏或范围扩张 | [SKILL.md](skills/scoped-change/SKILL.md) |
 | 项目上下文 | `index-project` | 创建或增量维护以 `AGENTS.md` 为事实来源的项目索引 | [SKILL.md](skills/index-project/SKILL.md)、`references/first-index.md`、`references/incremental-index.md` |
+| 项目上下文 | `writing-for-agents` | 为 Agent 编写低上下文负担、触发清晰且过程稳定的指令文档 | [SKILL.md](skills/writing-for-agents/SKILL.md)、`references/skill-mechanics.md`、`agents/openai.yaml` |
 | 项目上下文 | `unslop` | 清理文本中的 AI 套话与机械结构，同时保留原意和语气 | [SKILL.md](skills/unslop/SKILL.md)、`agents/openai.yaml` |
 | 项目上下文 | `ux-writing` | 编写或审查用户可见文案、文档、帮助和诊断文本 | [SKILL.md](skills/ux-writing/SKILL.md) |
 | WSL | `wsl-windows-image` | 将 Windows 图片路径转换为 WSL 路径后读取图片 | [SKILL.md](skills/wsl-windows-image/SKILL.md) |
@@ -92,11 +93,12 @@ flowchart TD
 
 ## 变更记录
 
+- 2026-08-26：项目上下文类新增并中文化 `writing-for-agents`。
 - 2026-08-26：建立根级项目索引并记录当前安装镜像；按当前要求不创建 Skill 目录级索引文档。
 
 ## 索引状态
 
-- 上次索引：2026-08-26T09:21:25Z
-- 基线提交：0dbc758b3afade89c21c749a994056344021d4c1
+- 上次索引：2026-08-26T09:38:16Z
+- 基线提交：5f44ba9129e1e8f3ee7cb70e4c46885cf1217c5b
 - 已知缺口：当前仅建立根级索引；未创建 Skill 目录级 `AGENTS.md` 与 `CLAUDE.md`（按用户指定范围）
 - 扫描进度：已完成“根级索引”
