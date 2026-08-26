@@ -41,6 +41,30 @@ npx skills add liao666brant/skills -g
 
 `skills` CLI 会自动发现仓库 `skills/` 下的所有技能，并按当前 agent 写入对应的用户级 skills 目录（Claude Code、Codex、OpenCode 等），一套技能多端通用。
 
+### 项目推荐安装
+
+以下命令应在目标项目根目录运行；不带 `-g`，因此默认安装到当前项目。
+
+#### 项目上下文
+
+一次安装项目索引与 Agent 文档写作技能：
+
+```bash
+npx skills add liao666brant/skills --skill index-project --skill writing-for-agents
+```
+
+`index-project` 负责创建和维护项目 AI 上下文索引，`writing-for-agents` 用于编写或改进 Skill、`AGENTS.md` 和 `CLAUDE.md`。
+
+#### 去 AI 味
+
+一次安装文本去 AI 味与用户文案质量检查技能：
+
+```bash
+npx skills add liao666brant/skills --skill unslop --skill ux-writing
+```
+
+`unslop` 清理 AI 腔、套话和机械结构，`ux-writing` 检查用户可见文案与文档的清晰度、一致性和时效性。
+
 ## 目录结构
 
 ```
