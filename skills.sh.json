@@ -8,8 +8,8 @@
     },
     {
       "title": "多模态",
-      "description": "图像理解相关技能",
-      "skills": ["image-analyzer"]
+      "description": "图像理解与可视化相关技能",
+      "skills": ["image-analyzer", "show-me"]
     },
     {
       "title": "工程质量",
@@ -18,8 +18,8 @@
     },
     {
       "title": "项目上下文",
-      "description": "项目 AI 上下文索引与文档相关技能",
-      "skills": ["index-project", "ux-writing"]
+      "description": "项目 AI 上下文索引与文档表达相关技能",
+      "skills": ["index-project", "unslop", "ux-writing"]
     },
     {
       "title": "WSL",

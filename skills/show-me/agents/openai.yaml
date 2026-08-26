@@ -1,0 +1,3 @@
+interface:
+  display_name: "图解说明"
+  short_description: "用精简图示、代码结构草图和 HTML 帮助理解当前主题"

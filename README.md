@@ -14,6 +14,8 @@
 | code-review | 默认审查未提交改动，也可双轴审查指定基线后的仓库规范与需求实现   |
 | review-fix-goal | 自包含的跨宿主审查修复闭环，最终复审清零后中文提交并推送       |
 | skill-doctor | 基于本地真实 Agent 会话评估技能效果并生成改进报告 |
+| unslop | 清除文本中的 AI 腔、套话和机械结构，保留自然语气与作者个性 |
+| show-me | 用精简图示、代码结构草图和 HTML 解释复杂主题 |
 | index-project  | 项目 AI 上下文索引：以 AGENTS.md 为唯一事实来源，初始化/增量维护并收敛 CLAUDE.md |
 | ux-writing | 用户可见文案与文档的清晰度、一致性与时效性检查 |
 | scoped-change | 界定变更边界，避免超范围改动与遗漏必要位置 |
@@ -24,6 +26,8 @@
 - `ux-writing`：改编自 [scarletkc/agents 的 ux-writing](https://github.com/scarletkc/agents/tree/main/skills/ux-writing)，原作者 [scarletkc](https://github.com/scarletkc)，遵循 Apache-2.0 许可。
 - `scoped-change`：改编自 [scarletkc/agents 的 scoped-change](https://github.com/scarletkc/agents/tree/main/skills/scoped-change)，原作者 [scarletkc](https://github.com/scarletkc)，遵循 Apache-2.0 许可。
 - `skill-doctor`：中文化并适配自 [warpdotdev/common-skills 的 skill-doctor](https://github.com/warpdotdev/common-skills/tree/main/.agents/skills/skill-doctor)，原作者 Denver Technologies, Inc.，遵循 MIT 许可。
+- `unslop`：中文化并适配自 [Cursor plugins 的 pstack/unslop](https://github.com/cursor/plugins/tree/main/pstack/skills/unslop)，原作者 Lauren Tan，遵循 MIT 许可。
+- `show-me`：中文化并适配自 [HumanLayer skills 的 show-me](https://github.com/humanlayer/skills/tree/main/plugins/show-me/skills/show-me)，原作者 HumanLayer，遵循 MIT 许可。
 
 ## 安装
 
@@ -62,6 +66,14 @@ skills/
     │   ├── references/
     │   ├── scorers/
     │   └── scripts/
+    ├── unslop/
+    │   ├── SKILL.md
+    │   └── agents/
+    │       └── openai.yaml
+    ├── show-me/
+    │   ├── SKILL.md
+    │   └── agents/
+    │       └── openai.yaml
     ├── index-project/
     │   ├── SKILL.md
     │   └── references/          # first-index.md / incremental-index.md

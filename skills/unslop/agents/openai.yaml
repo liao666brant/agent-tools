@@ -1,0 +1,3 @@
+interface:
+  display_name: "去除 AI 腔"
+  short_description: "清除文本中的 AI 套话和机械结构，保留原意与自然语气"
