@@ -14,7 +14,7 @@
     {
       "title": "工程质量",
       "description": "代码审查与质量保障相关技能",
-      "skills": ["code-review", "review-fix-goal", "scoped-change"]
+      "skills": ["code-review", "review-fix-goal", "skill-doctor", "scoped-change"]
     },
     {
       "title": "项目上下文",
