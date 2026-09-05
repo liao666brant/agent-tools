@@ -2,20 +2,22 @@
 # noqa: SIZE_OK — Self-contained HTML, canvas export, and upstream brand template form one renderer.
 """把 skill-doctor 的 report.json 渲染为可分享的 HTML 报告。
 
-Output (next to report.json):
-  report.html - scorecard, findings, and suggested skill edits in a single
-                self-contained page, with a "share as png" button that draws
-                a 1200x675 share image client-side and downloads it.
+在 report.json 所在目录生成自包含的 report.html，展示评分卡、发现和技能
+修改建议。点击“分享”可在浏览器本地绘制并下载 1200×675 比例的分享图片。
 
-Python 3.9+, stdlib only. Uses system fonts so the page and the exported PNG
-render the same everywhere.
+需要 Python 3.9 或更高版本，仅使用标准库。页面和导出图片均使用系统字体。
 """
 
+from __future__ import annotations
+
+import argparse
 import base64
 import html
 import json
 import re
 import sys
+import webbrowser
+from datetime import datetime, timezone
 from pathlib import Path
 
 GRADES = [
@@ -42,6 +44,36 @@ def grade_for(score: float) -> str:
 
 def pct(score) -> int:
     return round(float(score) * 100)
+
+
+def format_generated_at(value: str | None) -> str:
+    """把带时区的生成时间转换为 UTC，保留无法解析的原值。"""
+    if not value:
+        return ""
+    raw = str(value)
+    normalized = raw[:-1] + "+00:00" if raw.endswith("Z") else raw
+    if re.search(r"[+-]\d{2}$", normalized):
+        normalized += ":00"
+    try:
+        generated_at = datetime.fromisoformat(normalized)
+    except ValueError:
+        return raw
+    suffix = ""
+    if generated_at.tzinfo is not None:
+        generated_at = generated_at.astimezone(timezone.utc)
+        suffix = " UTC"
+    return (
+        f"{generated_at.year}年{generated_at.month}月{generated_at.day}日 "
+        f"{generated_at.strftime('%H:%M')}{suffix}"
+    )
+
+
+def open_report(report_path: Path) -> bool:
+    """在默认浏览器打开报告，返回浏览器是否接受了打开请求。"""
+    try:
+        return bool(webbrowser.open(report_path.absolute().as_uri(), new=2))
+    except (OSError, webbrowser.Error):
+        return False
 
 
 def esc(v) -> str:
@@ -71,7 +103,7 @@ def embedded_diffs_script() -> str:
             "请从 warpdotdev/skill-doctor 恢复该文件，上游使用 "
             "`pnpm build:diffs` 构建此资源"
         )
-    bundle = DIFFS_BUNDLE_PATH.read_text()
+    bundle = DIFFS_BUNDLE_PATH.read_text(encoding="utf-8")
     return re.sub(r"</script", r"<\\/script", bundle, flags=re.IGNORECASE)
 
 
@@ -90,9 +122,13 @@ WARP_MARK = (
     + "</svg>"
 )
 
-# Footer stamp, shared by the page and the exported share image.
-STAMP_NAME = "warp factories"
+# Sticky report footer.
+STAMP_NAME = "使用 Warp Factories 自动改进技能"
 STAMP_SUB = "持续评分 \u00b7 持续调优技能"
+
+# Attribution shown only in the exported share image.
+SHARE_STAMP_NAME = "用 /skill-doctor 生成报告"
+SHARE_STAMP_SUB = "warp.dev/skill-doctor"
 
 # Design tokens lifted from warp.dev/factories (factories-landing.css):
 # white ground with a dot grid, Matter-Mono-ish monospace, #2a1eff accent,
@@ -101,13 +137,25 @@ STAMP_SUB = "持续评分 \u00b7 持续调优技能"
 PAGE_CSS = """
 * { box-sizing: border-box; }
 body {
+  --mono-font: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --fg: #1a1522; --muted: #5d5966; --muted-2: #918d9a; --accent: #2a1eff;
   --line: rgba(13, 10, 61, 0.16); --line-soft: rgba(13, 10, 61, 0.07);
-  --bg-panel: #f6f5fb; --yellow: #eef17c;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  background: radial-gradient(circle at 1px 1px, var(--line-soft) 1px, transparent 0) 0 0 / 22px 22px, #fff;
+  --page-bg: #fff; --surface: #fff; --bg-panel: #f6f5fb; --yellow: #eef17c;
+  --button-fg: #1a1522;
+  --footer-shadow: rgba(13, 10, 61, 0.12);
+  font-family: var(--mono-font);
+  background: radial-gradient(circle at 1px 1px, var(--line-soft) 1px, transparent 0) 0 0 / 22px 22px, var(--page-bg);
   color: var(--fg); max-width: 900px; margin: 0 auto; padding: 48px 24px;
-  line-height: 1.65; font-size: 13px;
+  line-height: 1.65; font-size: 13px; color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  body {
+    --fg: #f4f1f8; --muted: #bbb5c2; --muted-2: #928b9b; --accent: #9188ff;
+    --line: rgba(239, 235, 255, 0.2); --line-soft: rgba(239, 235, 255, 0.08);
+    --page-bg: #0f0d14; --surface: #17141d; --bg-panel: #211d29;
+    --footer-shadow: rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+  }
 }
 ::selection { background: var(--accent); color: #fff; }
 h1 { font-weight: 500; letter-spacing: -2px; font-size: 34px; margin: 4px 0 0; }
@@ -122,21 +170,24 @@ li { margin-bottom: 10px; }
 .tag { font-size: 11px; color: var(--accent); text-transform: lowercase; }
 .tag::before { content: "# "; }
 .muted { color: var(--muted-2); font-size: 12px; }
-.stamp { display: flex; align-items: center; gap: 11px; }
+.stamp { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.stamp > div { min-width: 0; }
 .stamp .mark { width: 27px; height: 26px; flex: none; display: block; }
-.stamp-name { font-size: 15px; font-weight: 600; letter-spacing: -0.03em; text-transform: lowercase; }
+.stamp-name { font-size: 15px; font-weight: 600; letter-spacing: -0.03em; }
 .stamp-sub { font-size: 11px; color: var(--muted-2); text-transform: lowercase; letter-spacing: 0.02em; }
-.stamp-row { border: 1px solid var(--line); background: #fff; padding: 12px 16px; }
+.stamp-row { border: 1px solid var(--line); background: var(--surface); padding: 12px 16px; }
+.factories-footer { position: sticky; bottom: 16px; z-index: 20; margin-top: 40px;
+  box-shadow: 0 8px 24px var(--footer-shadow); }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .title-row { margin-top: 4px; }
-.title-row h1 { margin: 0; }
-.cta-button { font-family: inherit; font-size: 13px; font-weight: 600; color: var(--fg);
-  background: var(--yellow); border: 1px solid var(--fg); padding: 8px 14px;
+.title-row h1 { margin: 0; min-width: 0; }
+.cta-button { font-family: inherit; font-size: 13px; font-weight: 600; color: var(--button-fg);
+  background: var(--yellow); border: 1px solid var(--button-fg); padding: 8px 14px;
   text-decoration: none; white-space: nowrap; flex: none; cursor: pointer; }
 .cta-button:hover { background: #f4f79f; }
 .cta-button[disabled] { cursor: default; opacity: 0.65; }
 .scorecard { display: flex; align-items: center; gap: 48px; border: 1px solid var(--line);
-  background: #fff; padding: 26px 28px; margin-top: 20px; }
+  background: var(--surface); padding: 26px 28px; margin-top: 20px; }
 .grade-col { text-align: center; flex: none; width: 170px; }
 .grade { font-size: 96px; font-weight: 600; line-height: 1; letter-spacing: -5px; color: var(--accent); }
 .grade-label { font-size: 11px; color: var(--muted-2); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.14em; }
@@ -145,7 +196,9 @@ li { margin-bottom: 10px; }
 .bar-name { text-transform: lowercase; }
 .bar-val { font-weight: 600; font-variant-numeric: tabular-nums; }
 .bar-track { height: 8px; background: var(--line-soft); box-shadow: inset 0 0 0 1px var(--line); }
-.bar-fill { height: 100%; background: var(--accent); }
+.bar-fill { height: 100%; background: var(--accent);
+  animation: skill-doctor-fill 700ms cubic-bezier(0.22, 1, 0.36, 1) var(--metric-delay) both;
+  transform-origin: left; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line);
   border-top: none; background: var(--bg-panel); }
 .stat { padding: 16px 24px 14px; border-left: 1px solid var(--line); }
@@ -153,7 +206,8 @@ li { margin-bottom: 10px; }
 .stat .num { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .stat .lbl { font-size: 12px; color: var(--muted); margin-top: 2px; text-transform: lowercase; }
 .diff-wrap { margin: 10px 0 4px; }
-.diff-view { display: grid; gap: 10px; max-width: 100%; }
+.diff-view { display: grid; gap: 10px; max-width: 100%;
+  --diffs-font-family: var(--mono-font); --diffs-header-font-family: var(--mono-font); }
 .diff-view > * { min-width: 0; }
 .diff-fallback { background: var(--bg-panel); border: 1px solid var(--line); padding: 13px 16px;
   color: var(--muted); font-size: 12px; line-height: 1.7; overflow-x: auto; margin: 0; white-space: pre; }
@@ -163,9 +217,16 @@ li { margin-bottom: 10px; }
   mask-image: linear-gradient(#000 calc(100% - 72px), transparent);
 }
 .diff-toggle { font-family: inherit; font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--accent); background: #fff;
+  text-transform: uppercase; color: var(--accent); background: var(--surface);
   border: 1px solid var(--line); padding: 5px 10px; margin-top: 6px; cursor: pointer; }
 .diff-toggle:hover { border-color: var(--accent); }
+@keyframes skill-doctor-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bar-fill { animation: none; }
+}
 @media (max-width: 480px) {
   body { padding: 32px 16px; }
   .title-row { flex-wrap: wrap; }
@@ -184,16 +245,18 @@ def render_page(r) -> str:
     scores = r["scores"]
     stats = r.get("stats", {})
     grade = r.get("grade") or grade_for(scores["overall"])
+    generated_at = format_generated_at(r.get("generated_at"))
 
     bars = "".join(
         f'<div class="bar-row"><div class="bar-head"><span class="bar-name">{esc(name)}</span>'
         f'<span class="bar-val">{pct(val)}</span></div>'
-        f'<div class="bar-track"><div class="bar-fill" style="width:{pct(val)}%"></div></div></div>'
-        for name, val in [
+        f'<div class="bar-track"><div class="bar-fill" '
+        f'style="width:{pct(val)}%;--metric-delay:{180 + index * 110}ms"></div></div></div>'
+        for index, (name, val) in enumerate([
             ("效率", scores.get("efficiency", 0)),
             ("代码质量", scores.get("code_quality", 0)),
             ("技能覆盖率", scores.get("skill_coverage", 0)),
-        ]
+        ])
     )
     stat_cells = "".join(
         f'<div class="stat"><div class="num">{esc(value)}</div><div class="lbl">{esc(label)}</div></div>'
@@ -216,6 +279,7 @@ def render_page(r) -> str:
 
     card_data = json.dumps({
         "title": r.get("title", "Agent 技能质量报告"),
+        "eyebrow": "skill-doctor",
         "handle": r.get("handle") or "skill-report",
         "harness": r.get("harness", "codex"),
         "grade": grade,
@@ -232,32 +296,32 @@ def render_page(r) -> str:
             [str(stats.get("skills_found", 0)), "已安装技能"],
             [str(stats.get("skills_used", 0)), "已使用技能"],
         ],
-        "stamp": [STAMP_NAME, STAMP_SUB],
+        "stamp": [SHARE_STAMP_NAME, SHARE_STAMP_SUB],
         "paths": [{"d": d, "fill": fill} for d, fill in WARP_PATHS],
         "viewbox": list(WARP_VIEWBOX),
     })
 
     return f"""<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>{esc(r.get('title', 'Agent 技能质量报告'))}</title>
 <style>{PAGE_CSS.replace('__CLAMP__', str(DIFF_CLAMP_PX))}</style></head><body>
 <div class="tag">skill-doctor</div>
 <div class="row title-row">
-  <h1>{esc(r.get('title', 'Agent 技能质量报告'))}</h1>
+  <h1 class="natural-wrap">{esc(r.get('title', 'Agent 技能质量报告'))}</h1>
   <button class="cta-button" id="share-png" type="button">分享</button>
 </div>
-<p class="muted">生成时间：{esc(r.get('generated_at', ''))}&nbsp;&middot; 宿主：{esc(r.get('harness', 'codex'))}&nbsp;&middot; 全部分析均在本机完成</p>
+<p class="muted">生成时间：{esc(generated_at)}&nbsp;&middot; 宿主：{esc(r.get('harness', 'codex'))}</p>
 <div class="scorecard">
   <div class="grade-col"><div class="grade">{esc(grade)}</div>
     <div class="grade-label">总分 {pct(scores['overall'])}</div></div>
   <div class="bars">{bars}</div>
 </div>
 <div class="stats">{stat_cells}</div>
-<h2>主要发现</h2><ul>{findings}</ul>
-<h2>技能修改建议</h2><ol>{suggestions}</ol>
-<h2>自动执行</h2>
-<div class="stamp-row row">
-  <div class="stamp">{WARP_MARK}<div>
+<h2 class="natural-wrap">主要发现</h2><ul>{findings}</ul>
+<h2 class="natural-wrap">技能修改建议</h2><ol>{suggestions}</ol>
+<div class="stamp-row row factories-footer">
+  <div class="stamp">{WARP_MARK}<div class="natural-wrap">
     <div class="stamp-name">{esc(STAMP_NAME)}</div>
     <div class="stamp-sub">{esc(STAMP_SUB)}</div>
   </div></div>
@@ -430,6 +494,10 @@ def page_script(card_data: str) -> str:
 
     // body
     dots(fx + 1, barBottom + 1, fw - 2, 404, 26);
+    font('400', 11);
+    track('0.4px');
+    c.fillStyle = ACCENT;
+    text('# ' + CARD.eyebrow, fx + 36, barBottom + 18);
     font('500', 34);
     track('-2px');
     c.fillStyle = FG;
@@ -532,20 +600,44 @@ def page_script(card_data: str) -> str:
     return script.replace("__CARD__", card_data.replace("</", "<\\/")).replace("__CLAMP__", str(DIFF_CLAMP_PX))
 
 
-def main():
-    report_path = Path(
-        sys.argv[1] if len(sys.argv) > 1 else "./skill-doctor-report/report.json"
-    ).expanduser()
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "report_path",
+        nargs="?",
+        default="./skill-doctor-report/report.json",
+        help="report.json 文件路径",
+    )
+    parser.add_argument(
+        "--open",
+        action="store_true",
+        dest="open_browser",
+        help="在默认浏览器中打开生成的报告",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
+    report_path = Path(args.report_path).expanduser()
     if not report_path.exists():
         print(f"错误：未找到 {report_path}", file=sys.stderr)
         sys.exit(1)
-    r = json.loads(report_path.read_text())
+    r = json.loads(report_path.read_text(encoding="utf-8"))
     r.setdefault("grade", grade_for(r["scores"]["overall"]))
 
     out_path = report_path.parent / "report.html"
-    out_path.write_text(render_page(r))
-    print(f"报告：{out_path}")
-    print('      在浏览器中打开后点击“分享”，即可导出 1200×675 的图片')
+    out_path.write_text(render_page(r), encoding="utf-8")
+    print(f"报告：{out_path.absolute().as_uri()}")
+    if args.open_browser:
+        if open_report(out_path):
+            print("      已在默认浏览器中打开")
+        else:
+            print(
+                "提示：无法在默认浏览器中打开报告，请手动打开上方链接",
+                file=sys.stderr,
+            )
+    print('      点击“分享”可导出 1200×675 比例的图片')
 
 
 if __name__ == "__main__":
