@@ -5,25 +5,25 @@
       "source": "liao666brant/skills",
       "sourceType": "github",
       "skillPath": "skills/index-project/SKILL.md",
-      "computedHash": "e7ddca4181d7c930e5a1b786fe39c4af7b85fddd5e6e07bc25b62085aa8c755f"
+      "computedHash": "2b3a27138c8c22ca8e3f44e540d8aa3b52ebd9384b426b229303dc692284a152"
     },
     "skill-doctor": {
       "source": "liao666brant/skills",
       "sourceType": "github",
       "skillPath": "skills/skill-doctor/SKILL.md",
-      "computedHash": "909da37cb9488a730be5d7984d5ee7a27e5c53e3cd0bd4de875e8aafa829aa0b"
+      "computedHash": "3eb162c9c7d0c0587a756a4d91fda418c610d0c9d9d18c547d27f232c5c1dc4c"
     },
     "update-skill": {
       "source": "liao666brant/skills",
       "sourceType": "github",
       "skillPath": "skills/update-skill/SKILL.md",
-      "computedHash": "5520ae6f5d7f6ba79e1223ac485f6edbdda3de52d5e538d99584eb45c73bf997"
+      "computedHash": "a4adbf25aec488dddfc78d66b612ae23237afe667e2ca762bb3dcccb2d7a484d"
     },
     "writing-for-agents": {
       "source": "liao666brant/skills",
       "sourceType": "github",
       "skillPath": "skills/writing-for-agents/SKILL.md",
-      "computedHash": "6d36eba84fc842cda883d7e3aae10889086c7b20ee7105f829c8cc18e121f1f2"
+      "computedHash": "4b2fed83d21cd54aea3384c2041ed670539cd8860df420d0ae2cb419991fc638"
     }
   }
 }
