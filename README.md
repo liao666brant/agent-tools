@@ -15,6 +15,7 @@
 | review-fix-goal | 自包含的跨宿主审查修复闭环，最终复审清零后中文提交并推送       |
 | skill-doctor | 基于本地真实 Agent 会话评估技能效果并生成改进报告 |
 | update-skill | 创建或改进通用 Agent Skill 的结构、触发描述与工作流指令 |
+| optimize-agent-instructions | 审计和优化 Skill、AGENTS.md 等指令，保留功能契约并减少无关上下文 |
 | unslop | 清除文本中的 AI 腔、套话和机械结构，保留自然语气与作者个性 |
 | show-me | 用精简图示、代码结构草图和 HTML 解释复杂主题 |
 | index-project  | 创建项目与模块索引，代码变更影响索引时主动同步，并收敛 CLAUDE.md |
@@ -25,6 +26,7 @@
 
 ## 来源与许可
 
+- `optimize-agent-instructions`：整理自本仓库的指令优化实践，参考 Eric Provencher 的 [Rethinking skills and prompts for GPT-6 Astra](https://x.com/pvncher/status/2095991462416490862)。
 - `ux-writing`：改编自 [scarletkc/agents 的 ux-writing](https://github.com/scarletkc/agents/tree/main/skills/ux-writing)，原作者 [scarletkc](https://github.com/scarletkc)，遵循 Apache-2.0 许可。
 - `scoped-change`：改编自 [scarletkc/agents 的 scoped-change](https://github.com/scarletkc/agents/tree/main/skills/scoped-change)，原作者 [scarletkc](https://github.com/scarletkc)，遵循 Apache-2.0 许可。
 - `skill-doctor`：中文化并适配自 [warpdotdev/common-skills 的 skill-doctor](https://github.com/warpdotdev/common-skills/tree/main/.agents/skills/skill-doctor)，原作者 Denver Technologies, Inc.，遵循 MIT 许可。
@@ -100,6 +102,8 @@ skills/
     │   │   └── openai.yaml
     │   └── references/
     │       └── best-practices.md
+    ├── optimize-agent-instructions/
+    │   └── SKILL.md
     ├── unslop/
     │   ├── SKILL.md
     │   └── agents/

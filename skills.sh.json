@@ -9,7 +9,7 @@
     {
       "title": "Skill 开发",
       "description": "Agent Skill 创建与维护相关技能",
-      "skills": ["update-skill", "skill-doctor"]
+      "skills": ["update-skill", "optimize-agent-instructions", "skill-doctor"]
     },
     {
       "title": "多模态",

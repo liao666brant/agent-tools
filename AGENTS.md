@@ -51,6 +51,7 @@ flowchart TD
 | Git | `git-commit` | 分析变更并生成 Conventional Commit，提交前要求确认 | [SKILL.md](skills/git-commit/SKILL.md) |
 | Git | `commit-zh` | 由主 Agent 执行中文 Conventional Commit，不自动推送 | [SKILL.md](skills/commit-zh/SKILL.md) |
 | Skill 开发 | `update-skill` | 创建或更新通用 Skill 的结构、描述、指令和资源 | [SKILL.md](skills/update-skill/SKILL.md)、`references/best-practices.md`、`agents/openai.yaml` |
+| Skill 开发 | `optimize-agent-instructions` | 审计和优化既有 Skill 与 Agent 文档，保持用途、触发和输出契约 | [SKILL.md](skills/optimize-agent-instructions/SKILL.md) |
 | Skill 开发 | `skill-doctor` | 从真实本地 Agent 会话评估技能效率与代码质量并生成报告 | [SKILL.md](skills/skill-doctor/SKILL.md)、`scripts/`、`scorers/`、`references/`、`assets/` |
 | 多模态 | `image-analyzer` | 通过宿主多模态能力或后备模型分析图片 | [SKILL.md](skills/image-analyzer/SKILL.md) |
 | 多模态 | `show-me` | 用 Mermaid、代码结构草图或聚焦 HTML 图解主题 | [SKILL.md](skills/show-me/SKILL.md)、`agents/openai.yaml` |
@@ -69,13 +70,13 @@ flowchart TD
 - 安装单个技能：`npx skills add liao666brant/skills --skill <skill-name> -g`
 - 校验目录 JSON：`jq empty skills.sh.json`
 - 检查补丁空白问题：`git diff --check`
-- 运行 `skill-doctor` 的现有单元测试：`uv run python -m unittest discover -s skills/skill-doctor/scripts -p 'test_*.py'`
+- 运行 `skill-doctor` 的现有单元测试：`uv run python -B -m unittest discover -s skills/skill-doctor/scripts -p 'test_*.py'`
 
 仓库没有统一构建步骤。`requirements.txt` 当前仅声明 `PyYAML`，用于基于 Python 的 Skill 元数据读取或校验；不要为了纯文档修改安装额外依赖或执行全仓构建。
 
 ## 维护约定
 
-- `SKILL.md` frontmatter 至少保留 `name` 和准确、可触发的 `description`；正文写必要步骤，详细分支下沉到 `references/`。
+- `SKILL.md` frontmatter 至少保留 `name` 和准确、可触发的 `description`；正文写必要步骤，详细分支下沉到 `references/`。精简时保留原用途、自动触发、输入输出与副作用边界，功能和政策变更以用户明确要求为准。
 - 通用 Skill 源码保持 agent-neutral；宿主专用展示信息放在可选的 `agents/openai.yaml`，不要在源码中硬编码个人安装目录。
 - 新增、删除、重命名或重新分类 Skill 时，同步更新 `README.md` 和 `skills.sh.json`。
 - 仅在技能确有可执行逻辑时增加 `scripts/` 和针对性测试；不要为文档型 Skill 创建空脚手架。
@@ -93,6 +94,8 @@ flowchart TD
 
 ## 变更记录
 
+- 2026-09-05：新增 `optimize-agent-instructions`，用于保持功能契约的指令审计与优化。
+- 2026-09-05：明确代码变更后的索引同步，以及精简 Skill 时保留用途、触发与输出契约的维护要求。
 - 2026-08-26：项目上下文类新增并中文化 `writing-for-agents`。
 - 2026-08-26：建立根级项目索引并记录当前安装镜像；按当前要求不创建 Skill 目录级索引文档。
 
