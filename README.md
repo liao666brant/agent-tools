@@ -10,7 +10,7 @@
 | ------------- | ----------------------------------------------------------------- |
 | git-commit    | 智能 Git 提交：conventional commits、自动语言检测、可指定语言     |
 | commit-zh     | 中文 Git 提交：分析变更并生成中文 conventional commit message     |
-| image-analyzer | 为当前主模型提供图像理解能力，非多模态模型自动委派 sonnet 读图   |
+| image-analyzer | 分析图片并支持视觉任务，主模型不能读图时使用可用视觉模型   |
 | code-review | 默认审查未提交改动，也可双轴审查指定基线后的仓库规范与需求实现   |
 | review-fix-goal | 自包含的跨宿主审查修复闭环，最终复审清零后中文提交并推送       |
 | skill-doctor | 基于本地真实 Agent 会话评估技能效果并生成改进报告 |
