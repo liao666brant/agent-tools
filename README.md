@@ -17,7 +17,7 @@
 | update-skill | 创建或改进通用 Agent Skill 的结构、触发描述与工作流指令 |
 | unslop | 清除文本中的 AI 腔、套话和机械结构，保留自然语气与作者个性 |
 | show-me | 用精简图示、代码结构草图和 HTML 解释复杂主题 |
-| index-project  | 项目 AI 上下文索引：以 AGENTS.md 为唯一事实来源，初始化/增量维护并收敛 CLAUDE.md |
+| index-project  | 创建项目与模块索引，代码变更影响索引时主动同步，并收敛 CLAUDE.md |
 | writing-for-agents | 为 Agent 编写低上下文负担、触发清晰且过程稳定的指令文档 |
 | ux-writing | 用户可见文案与文档的清晰度、一致性与时效性检查 |
 | scoped-change | 界定变更边界，避免超范围改动与遗漏必要位置 |
@@ -53,7 +53,7 @@ npx skills add liao666brant/skills -g
 npx skills add liao666brant/skills --skill index-project --skill writing-for-agents
 ```
 
-`index-project` 负责创建和维护项目 AI 上下文索引，`writing-for-agents` 用于编写或改进 Skill、`AGENTS.md` 和 `CLAUDE.md`。
+`index-project` 负责创建和维护项目、模块的 `AGENTS.md` 索引；Agent 修改模块内容使索引失实时，应在交付前主动调用并同步受影响的索引。`writing-for-agents` 用于编写或改进 Skill、`AGENTS.md` 和 `CLAUDE.md`。
 
 #### 去 AI 味
 
