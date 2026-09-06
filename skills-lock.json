@@ -5,7 +5,13 @@
       "source": "liao666brant/skills",
       "sourceType": "github",
       "skillPath": "skills/index-project/SKILL.md",
-      "computedHash": "2b3a27138c8c22ca8e3f44e540d8aa3b52ebd9384b426b229303dc692284a152"
+      "computedHash": "ce78ec169a2e2446091dc5d0871394390fb0c2ebe888f34848dbc7ddb78c32a4"
+    },
+    "optimize-agent-instructions": {
+      "source": "liao666brant/skills",
+      "sourceType": "github",
+      "skillPath": "skills/optimize-agent-instructions/SKILL.md",
+      "computedHash": "8130480f46a8b0cdbd2030ae91d41dad2dc481508aa73200e6c61238f309ab90"
     },
     "skill-doctor": {
       "source": "liao666brant/skills",
