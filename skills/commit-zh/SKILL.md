@@ -1,140 +1,53 @@
 ---
 name: commit-zh
-description: '中文 Git 提交技能。分析变更并生成中文 conventional commit message。当用户说"提交"、"commit"、"提交代码"、"提交变更"、"/commit-zh" 时触发。全程主 agent 执行，不使用 subagent。'
+description: "中文 Git 提交：用户要求提交、commit、提交代码或调用 /commit-zh 时，分析变更并生成中文 Conventional Commit；全程主 Agent 执行，不使用子代理。"
 ---
 
 # 中文 Git 提交
 
-分析暂存/未暂存变更，生成中文 conventional commit message，主 agent 全程执行。
+分析暂存或未暂存变更，生成中文 Conventional Commit。全程由主 Agent 执行，不使用子代理。
 
-## Conventional Commit 格式
+## 确定范围与内容
 
-```
-<type>[(scope)]: <中文描述>
+先检查 `git status --porcelain`，记录当前分支、已有的 `HEAD` 和 index 状态。用户未明确限定范围时，有暂存则默认只提交已暂存内容；无暂存才按逻辑关联选择工作树变更。用户明确限定目标时，以该范围为准，核对已有暂存是否属于目标。
 
-[可选正文]
+读取选定范围的 diff 和必要上下文；新选中的未跟踪文件也要读取完整内容。使用 `git ls-files --others --exclude-standard -z` 枚举时，以 NUL 分隔消费路径。
 
-[可选脚注]
-```
+保留范围外改动及其暂存状态，不把同文件其他 hunk 或新出现的用户改动自动并入。禁止暂存或提交含密钥、凭据或疑似含密钥的文件。
 
-**type/scope 始终英文**，subject/body/footer 中文。
+**完成条件：** 已确定实际提交内容与范围外状态；没有变更则停止，无法确定目标时才询问。
 
-## Commit Types
+## 暂存方式
 
-| Type       | 用途          |
-| ---------- | ------------- |
-| `feat`     | 新功能        |
-| `fix`      | 修复 bug      |
-| `docs`     | 文档变更      |
-| `style`    | 格式/样式     |
-| `refactor` | 重构          |
-| `perf`     | 性能优化      |
-| `test`     | 测试相关      |
-| `build`    | 构建系统/依赖 |
-| `ci`       | CI/配置变更   |
-| `chore`    | 维护/杂项     |
-| `revert`   | 回退提交      |
+按已确定的内容选择方式，不将用户的暂存选择扩大为整个文件。下列提交命令在后续执行阶段使用：
 
-## 工作流
+- **提交 index：** 整个 index 都属于本次目标时，保留已选内容；需要补充时只暂存目标文件或 hunk。复核完整暂存 diff 后，使用不带路径的 `git commit -m <message>`，同文件未暂存内容不会进入提交。
+- **完整文件：** 目标路径的全部工作树变化均属于本次目标时，可用 `git add -- <目标路径>` 和 `git commit --only -m <message> -- <目标路径>`，保留其他路径的暂存内容。
+- **混合改动：** 同文件仅部分 hunk 属于目标，且 index 另有范围外内容时，使用能隔离目标并保持原工作树及范围外 index 状态的部分提交方式。只有无法安全分离时才保留现场并询问。不得以整文件 `git add` 或 `git commit --only` 代替 hunk 隔离；`--only` 读取指定文件的工作树内容。
 
-### 1. 检查仓库状态
+所有路径和消息都通过宿主参数边界传递。禁止 `git add .` 和 `git add -A`。
 
-```bash
-git status --porcelain
-```
+**完成条件：** 已复核实际待提交 diff，提交方式不会包含范围外内容；按下方逻辑单元规则决定执行或等待确认。
 
-无变更则停止。
+## 提交信息
 
-### 2. 分析 Diff
+按 diff 选择 type 和可选的目录或模块 scope。type 使用 `feat`、`fix`、`docs`、`style`、`refactor`、`perf`、`test`、`build`、`ci`、`chore`、`revert`。type/scope 始终英文，subject/body/footer 中文，标准 trailer 关键字保持原形式。
 
-```bash
-# 有暂存文件用暂存 diff
-git diff --staged
+- **Subject：** `<type>[(scope)]: <中文描述>`，祈使句式，不超过 72 字符且不加句号。
+- **Body：** 可选，与 subject 空一行，以 `- ` 列表说明意图和原因，最多三条，每条不超过 72 字符。
+- **Footer：** 与前文空一行，使用标准 trailer，如 `Closes #123`。破坏性变更在冒号前加 `!`，并使用 `BREAKING CHANGE: <描述>`。
 
-# 无暂存用工作区 diff
-git diff
-```
+## 执行或建议拆分
 
-### 3. 暂存文件（如需）
+- **单一逻辑单元：** 直接提交，无需额外确认。
+- **多个逻辑单元：** 建议拆分，取得拆分方案的确认后执行。
 
-无暂存时按逻辑分组暂存：
+当前会话已有准确覆盖同一方案的授权时不重复询问，用户指令和更高优先级规则始终优先。提交前核对工作树与 index 仍符合选定内容，运行相应空白检查；新增变化先复核范围，不自动并入。
 
-```bash
-git add path/to/file1 path/to/file2
-```
+不得修改 Git 配置；破坏性操作和跳过 hooks 仅在用户明确要求时执行。禁止自动推送，仅在用户明确要求时推送。
 
-- 按逻辑关联分组
-- **禁止**暂存可能含密钥的文件（.env、credentials、private keys）
-- **禁止** `git add .` / `git add -A`
-- 多逻辑单元 → 建议拆分多次提交
+**完成条件：** Git 报告提交成功；失败时报告原因，该步骤仍未完成。
 
-### 4. 生成 Commit Message
+## 核验结果
 
-- **Type**：变更类型（英文）
-- **Scope**：目录/模块名（英文，可省略）
-- **Subject**：中文摘要，祈使句式，≤72 字符
-- **Body**：`- ` 列表解释 why/what，≤3 条，每条 ≤72 字符
-- **Footer**：破坏性变更/issue 引用
-
-#### 格式约束
-
-1. Subject ≤72 字符，无句号
-2. Body：subject 后空一行，`- ` 开头，说明意图和原因
-3. Footer：body 后空一行，git trailer（如 `Closes #123`），破坏性变更用 `BREAKING CHANGE: <描述>` + type 后加 `!`
-
-#### 示例
-
-```text
-feat(auth): 添加 OAuth2 登录支持
-
-- 实现 Google 和 GitHub 第三方登录
-- 添加用户授权回调处理
-- 优化登录状态持久化逻辑
-
-Closes #42
-```
-
-```text
-feat(api)!: 重新设计认证 API
-
-- 从 session 认证迁移到 JWT
-- 更新所有端点签名
-- 移除已废弃的登录方式
-
-BREAKING CHANGE: 认证 API 已完全重新设计，所有客户端需更新集成
-```
-
-### 5. 执行或建议拆分
-
-- **单一逻辑单元**：直接提交，无需确认
-- **多逻辑单元**：建议拆分，等确认后执行
-
-### 6. 执行提交
-
-```bash
-git commit -m "$(cat <<'EOF'
-<type>[(scope)]: <中文描述>
-
-<body>
-
-<footer>
-EOF
-)"
-```
-
-**禁止自动推送**。仅本地提交，除非用户明确要求。
-
-### 7. 提交后
-
-```bash
-git log --oneline -1
-```
-
-## 安全协议
-
-- 禁止修改 git config
-- 禁止破坏性命令（--force、hard reset）除非用户明确要求
-- 禁止跳过 hooks（--no-verify）除非用户明确要求
-- 禁止提交含密钥/可能含密钥的文件
-- 单一逻辑变更直接提交，多逻辑单元建议拆分后等确认
-- 禁止自动推送，仅本地提交
+显示新提交，核对 SHA、实际 diff 和文件清单，再比较剩余工作树与 index，确认目标已提交、范围外内容及其暂存状态保留。hooks 改变内容时先复核，不能只凭 `git log -1` 宣告完成。报告提交及剩余变更。

@@ -1,218 +1,58 @@
 ---
 name: git-commit
-description: 'Execute git commit with conventional commit message analysis, intelligent staging, and message generation. Use when user asks to commit changes, create a git commit, or mentions "/git-commit". Supports: (1) Auto-detecting type and scope from changes, (2) Generating conventional commit messages from diff, (3) Interactive commit with optional type/scope/description overrides, (4) Intelligent file staging for logical grouping'
+description: "用户要求提交变更或调用 /git-commit 时，分析 diff、智能暂存并生成 Conventional Commit；支持指定语言和调整 type、scope、描述。"
 ---
 
-# Git Commit with Conventional Commits
+# Git 提交
 
-When the user invokes `/git-commit [language]`, analyze staged/unstaged changes and create a standardized conventional commit.
+支持 `/git-commit [language]`；语言参数可用 `en`、`zh`、`ja`、`ko` 等。
 
-## Arguments
+## 执行分工
 
-- `[language]` (optional): Force commit message language. Examples: `en`, `zh`, `ja`, `ko`.
-  - If not provided, auto-detect from the repository's recent commit history.
+支持子代理时，将下方仓库检查、diff 分析、语言检测、所需暂存和信息生成交给最便宜的可用子代理。Claude Code 使用 `haiku`；其他宿主选择最便宜或最快的可用模型。不支持子代理时由主 Agent 内联执行。
 
-## Conventional Commit Format
+子代理遵守本技能的范围和安全规则，返回 type、scope、subject、body、footer、暂存文件清单和检测语言。主 Agent 负责展示方案、核对确认、执行最终提交和报告结果。
 
-```
-<type>[optional scope]: <subject>
+## 确定范围与内容
 
-[optional body]
+先检查 `git status --porcelain`，记录当前分支、已有的 `HEAD` 和 index 状态。用户未明确限定范围时，有暂存则默认只提交已暂存内容；无暂存才按逻辑关联选择工作树变更。用户明确限定目标时，以该范围为准，核对已有暂存是否属于目标。
 
-[optional footer(s)]
-```
+读取选定范围的 diff 和必要上下文；新选中的未跟踪文件也要读取完整内容。使用 `git ls-files --others --exclude-standard -z` 枚举时，以 NUL 分隔消费路径。
 
-## Commit Types
+保留范围外改动及其暂存状态，不把同文件其他 hunk 或新出现的用户改动自动并入。禁止暂存或提交含密钥、凭据或疑似含密钥的文件。
 
-| Type       | Purpose                        |
-| ---------- | ------------------------------ |
-| `feat`     | New feature                    |
-| `fix`      | Bug fix                        |
-| `docs`     | Documentation only             |
-| `style`    | Formatting/style (no logic)    |
-| `refactor` | Code refactor (no feature/fix) |
-| `perf`     | Performance improvement        |
-| `test`     | Add/update tests               |
-| `build`    | Build system/dependencies      |
-| `ci`       | CI/config changes              |
-| `chore`    | Maintenance/misc               |
-| `revert`   | Revert commit                  |
+**完成条件：** 已确定实际提交内容与范围外状态；没有变更则停止，无法确定目标时才询问。
 
-## Workflow
+## 暂存方式
 
-### Execution Model
+按已确定的内容选择方式，不将用户的暂存选择扩大为整个文件。下列提交命令在后续确认与执行阶段使用：
 
-The main agent MUST delegate diff analysis and message generation to a **sub-agent using the cheapest available model**. The main agent only handles:
-- Presenting the proposed commit to the user
-- Waiting for confirmation
-- Executing the final `git commit` command
+- **提交 index：** 整个 index 都属于本次目标时，保留已选内容；需要补充时只暂存目标文件或 hunk。复核完整暂存 diff 后，使用不带路径的 `git commit -m <message>`，同文件未暂存内容不会进入提交。
+- **完整文件：** 目标路径的全部工作树变化均属于本次目标时，可用 `git add -- <目标路径>` 和 `git commit --only -m <message> -- <目标路径>`，保留其他路径的暂存内容。
+- **混合改动：** 同文件仅部分 hunk 属于目标，且 index 另有范围外内容时，使用能隔离目标并保持原工作树及范围外 index 状态的部分提交方式。只有无法安全分离时才保留现场并询问。不得以整文件 `git add` 或 `git commit --only` 代替 hunk 隔离；`--only` 读取指定文件的工作树内容。
 
-Model selection priority:
-- Claude Code: use `model: "haiku"`
-- Other tools (Copilot, Codex, OpenCode, etc.): use the cheapest/fastest model available, or fall back to inline execution if sub-agent spawning is not supported
+所有路径和消息都通过宿主参数边界传递。不要盲目使用 `git add .` 或 `git add -A`。多个逻辑单元应建议拆分为多个提交。
 
-The sub-agent prompt should include:
-1. The full workflow steps 1-5 below
-2. Instructions to return a structured result containing: type, scope, subject, body, footer, staged file list, and detected language
+**完成条件：** 已复核实际待提交 diff，提交方式不会包含范围外内容；提交前仍需完成下方确认。
 
-### 1. Check Repository State
+## 语言与提交信息
 
-```bash
-git status --porcelain
-```
+显式语言参数优先。否则读取最近 20 条提交：中文超过 50% 时用中文，英文超过 50% 时用英文；没有明确多数或无法判断时用英文。
 
-If no changes exist, inform the user and stop.
+按 diff 选择 type 和可选的目录或模块 scope。type 使用 `feat`、`fix`、`docs`、`style`、`refactor`、`perf`、`test`、`build`、`ci`、`chore`、`revert`。type/scope 始终英文，subject/body/footer 使用指定或检测语言，标准 trailer 关键字保持原形式。
 
-### 2. Analyze Diff
+- **Subject：** `<type>[(scope)]: <subject>`，现在时、祈使语气，不超过 72 字符且不加句号。
+- **Body：** 非琐碎变更用正文说明 why/what。与 subject 空一行，使用以祈使动词开头的 `- ` 列表，最多三条，每行不超过 72 字符；不用冒号分隔的正文格式。
+- **Footer：** 与前文空一行，使用标准 trailer，如 `Closes #123`。破坏性变更在冒号前加 `!`，并使用 `BREAKING CHANGE: <描述>`。
 
-```bash
-# If files are staged, use staged diff
-git diff --staged
+## 确认与执行
 
-# If nothing staged, use working tree diff
-git diff
-```
+展示提交信息、实际待提交文件清单和所选语言，允许用户调整 type、scope 和描述。执行前取得对最终方案的明确确认；当前会话已准确批准同一方案时不重复询问，用户指令和更高优先级规则始终优先。
 
-### 3. Detect Commit Message Language
+确认后，再核对工作树与 index 仍符合所选提交方式，运行相应空白检查，然后提交。内容变化时先复核变化及授权，不能自动扩张范围。不得修改 Git 配置；破坏性操作和跳过 hooks 仅在用户明确要求时执行。
 
-If the user provided a `[language]` argument, use that language directly.
+**完成条件：** Git 报告提交成功；失败时报告原因，该步骤仍未完成。
 
-Otherwise, detect from recent commit history:
+## 核验结果
 
-```bash
-git log --oneline -20
-```
-
-Analyze the language pattern of recent messages:
-
-- If more than 50% of recent messages are in Chinese → generate Chinese message
-- If more than 50% of recent messages are in English → generate English message
-- If there is no single language over 50% (mixed or unclear) → default to English
-
-### 4. Stage Files (if needed)
-
-If nothing is staged, intelligently stage related files:
-
-```bash
-# Stage specific files by logical grouping
-git add path/to/file1 path/to/file2
-```
-
-Rules:
-
-- Group logically related changes together
-- **NEVER** stage files that may contain secrets (.env, credentials, private keys)
-- **NEVER** use `git add .` or `git add -A` blindly
-- If changes span multiple logical units, suggest splitting into multiple commits
-
-### 5. Generate Commit Message
-
-Analyze the diff to determine:
-
-- **Type**: What kind of change is this?
-- **Scope**: What area/module is affected? (use directory or module name)
-- **Subject**: One-line summary (present tense, imperative mood, <72 chars)
-- **Body**: Explain "why" and "what" for non-trivial changes
-- **Footer**: Breaking changes, issue references
-
-Language rules:
-
-- Type and scope are ALWAYS in English (e.g., `feat(auth):`)
-- Subject, body and footer follow the detected/specified language
-
-#### Format Constraints
-
-1. **Subject**: Summarize intent in ≤ 72 chars, use imperative verbs ("add" not "added"), no trailing period.
-2. **Body**: Skip a line after subject. Use bullet points (`- `) starting with imperative verbs. Explain "why/what" (max 3 points, ≤ 72 chars/line). Do NOT use colon-separated format (like ~~"Feature: desc"~~).
-3. **Footer**: Skip a line after body. Use standard git trailers (e.g., `Closes #123`) or note breaking changes with `BREAKING CHANGE: <desc>` and add `!` after the commit type (e.g., `feat!:`).
-
-#### Examples
-
-**English:**
-
-```text
-feat(auth): add OAuth2 login support
-
-- implement Google and GitHub third-party login
-- add user authorization callback handling
-- improve login state persistence logic
-
-Closes #42
-```
-
-**Chinese:**
-
-```text
-feat(auth): 添加 OAuth2 登录支持
-
-- 实现 Google 和 GitHub 第三方登录
-- 添加用户授权回调处理
-- 优化登录状态持久化逻辑
-
-Closes #42
-```
-
-**With BREAKING CHANGE:**
-
-```text
-feat(api)!: redesign authentication API
-
-- migrate from session-based to JWT authentication
-- update all endpoint signatures
-- remove deprecated login methods
-
-BREAKING CHANGE: authentication API has been completely redesigned, all clients must update their integration
-```
-
-### 6. Confirm with User
-
-After receiving the sub-agent's result, the main agent presents the proposed commit:
-
-```
-Proposed Git Commit:
-Message: <type>(<scope>): <subject>
-Staged files: <file list>
-Language: <detected or specified language>
-
-Proceed? [y/n]
-```
-
-Wait for explicit confirmation before executing.
-
-### 7. Execute Commit
-
-```bash
-git commit -m "$(cat <<'EOF'
-<type>[scope]: <subject>
-
-<body>
-
-<footer>
-EOF
-)"
-```
-
-### 8. Post-Commit
-
-Show the result:
-
-```bash
-git log --oneline -1
-```
-
-## Best Practices
-
-- One logical change per commit
-- Present tense: "add" not "added"
-- Imperative mood: "fix bug" not "fixes bug"
-- Reference issues when applicable: `Closes #123`, `Refs #456`
-- Keep subject under 72 characters
-- If changes are too large or unrelated, suggest splitting
-
-## Safety Protocol
-
-- NEVER update git config
-- NEVER run destructive commands (--force, hard reset) without explicit request
-- NEVER skip hooks (--no-verify) unless user explicitly asks
-- NEVER commit files that likely contain secrets
-- ALWAYS confirm with user before executing the commit
+显示新提交，核对 SHA、实际 diff 和文件清单，再比较剩余工作树与 index，确认目标已提交、范围外内容及其暂存状态保留。hooks 改变内容时先复核，不能只凭 `git log -1` 宣告完成。报告提交及剩余变更；推送须有用户明确要求。
